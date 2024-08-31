@@ -23,7 +23,7 @@ const Routers = () => {
     res && disptach(addAuth(JSON.parse(res)));
   };
 
-  console.log("Checking auth...", auth);
+  const handleCheckToken = async () => {};
 
   return isLoading ? <Spin /> : !auth.token ? <AuthRouter /> : <MainRouter />;
 };

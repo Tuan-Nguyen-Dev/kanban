@@ -16,6 +16,9 @@ import SocialLogin from "./components/SocialLogin";
 import handleAPI from "../../apis/handleAPI";
 import { useAppDispatch } from "../../redux/hook";
 import { addAuth } from "../../redux/reducers/authReducer";
+// import { localDataName } from "constants/appInfo";
+import { auth } from "../../firebase/firebaseConfig";
+import { localDataName } from "../../constants/appInfo";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -34,9 +37,14 @@ const Login = () => {
 
       message.success(res.message);
       res.data && dispatch(addAuth(res.data));
+      if (isRemember) {
+        localStorage.setItem(localDataName.authData, JSON.stringify(res.data));
+      }
     } catch (error: any) {
       message.error(error.message);
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,7 +120,9 @@ const Login = () => {
         </div>
 
         <div className="mt-4 mb-3">
+          <Button onClick={() => auth.signOut()}>Logout Google</Button>
           <Button
+            loading={isLoading}
             onClick={() => form.submit()}
             type="primary"
             style={{
