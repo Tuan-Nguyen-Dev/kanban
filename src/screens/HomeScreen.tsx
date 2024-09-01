@@ -34,7 +34,7 @@ const HomeScreen = () => {
 
     try {
       const res = await handleAPI(api);
-      dispatch(refreshToken(res.data.token));
+      dispatch(refreshToken(res.data));
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -43,7 +43,7 @@ const HomeScreen = () => {
 
   return (
     <div>
-      <Button onClick={getProducts}>Logout</Button>
+      <Button onClick={logout}>Logout</Button>
     </div>
   );
 };

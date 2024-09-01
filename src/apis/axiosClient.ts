@@ -2,7 +2,7 @@ import axios from "axios";
 import queryString from "query-string";
 import { localDataName } from "../constants/appInfo";
 
-const bareUrl = `http://192.168.0.30:3001`;
+const bareUrl = `http://192.168.1.10:3001`;
 
 const getAccessToken = () => {
   const res = localStorage.getItem(localDataName.authData);
@@ -23,9 +23,8 @@ axiosClient.interceptors.request.use(async (config: any) => {
     Accept: "application/json",
     ...config.headers,
   };
-  config.data;
 
-  return config;
+  return { ...config, data: config.data ?? null };
 });
 
 axiosClient.interceptors.response.use(

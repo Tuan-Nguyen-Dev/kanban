@@ -8,6 +8,11 @@ import { useDispatch } from "react-redux";
 // import { addAuth } from "../../../redux/reducers/authReducer";
 import handleAPI from "../../../apis/handleAPI";
 import { addAuth } from "../../../redux/reducers/authReducer";
+import { localDataName } from "../../../constants/appInfo";
+
+interface Props {
+  isRemember?: boolean;
+}
 
 const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
@@ -15,7 +20,8 @@ provider.setCustomParameters({
   login_hint: "nguyenductuanff2003@gmail.com",
 });
 
-const SocialLogin = () => {
+const SocialLogin = (props: Props) => {
+  const { isRemember } = props;
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -38,9 +44,15 @@ const SocialLogin = () => {
 
           try {
             const res: any = await handleAPI(api, data, "post");
-            console.log(res);
+            console.log("res", res);
             message.success(res.message);
             dispatch(addAuth(res.data));
+            if (isRemember) {
+              localStorage.setItem(
+                localDataName.authData,
+                JSON.stringify(res.data)
+              );
+            }
           } catch (error: any) {
             console.log(error);
             message.error(error.message);
