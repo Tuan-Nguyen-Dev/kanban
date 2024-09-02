@@ -6,6 +6,7 @@ import { appInfo } from "../constants/appInfo";
 import { colors } from "../constants/color";
 import { MdOutlineInventory } from "react-icons/md";
 import { CiViewList } from "react-icons/ci";
+import { store } from "./../redux/store";
 
 const { Sider } = Layout;
 const { Text } = Typography;

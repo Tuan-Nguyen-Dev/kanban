@@ -6,7 +6,7 @@ import { colors } from "../constants/color";
 
 const HeaderComponent = () => {
   return (
-    <div className="p-2 row bg-white">
+    <div className="p-2 row bg-white" style={{ marginLeft: 2 }}>
       <div className="col">
         <Input
           placeholder="Search product, supplier, order"

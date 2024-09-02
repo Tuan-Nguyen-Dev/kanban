@@ -120,7 +120,7 @@ const Login = () => {
         </div>
 
         <div className="mt-4 mb-3">
-          <Button onClick={() => auth.signOut()}>Logout Google</Button>
+          {/* <Button onClick={() => auth.signOut()}>Logout Google</Button> */}
           <Button
             loading={isLoading}
             onClick={() => form.submit()}
