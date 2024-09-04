@@ -7,6 +7,8 @@ export interface SupplierModel {
   contact: string;
   isTaking: number;
   photoUrl: string;
+  email: string;
+  active: string;
   createdAt: string;
   updatedAt: string;
   _id: string;

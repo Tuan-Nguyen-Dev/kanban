@@ -1,14 +1,14 @@
 import { Button, message } from "antd";
-import React, { useState } from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../../firebase/firebaseConfig";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { auth } from "../../../firebase/firebaseConfig";
 // import handleAPI from "apis/handleAPI";
 // import { addAuth } from "redux/reducers/authReducer";
 // import { addAuth } from "../../../redux/reducers/authReducer";
 import handleAPI from "../../../apis/handleAPI";
-import { addAuth } from "../../../redux/reducers/authReducer";
 import { localDataName } from "../../../constants/appInfo";
+import { addAuth } from "../../../redux/reducers/authReducer";
 
 interface Props {
   isRemember?: boolean;
@@ -16,9 +16,9 @@ interface Props {
 
 const provider = new GoogleAuthProvider();
 provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
-provider.setCustomParameters({
-  login_hint: "nguyenductuanff2003@gmail.com",
-});
+// provider.setCustomParameters({
+//   login_hint: "nguyenductuanff2003@gmail.com",
+// });
 
 const SocialLogin = (props: Props) => {
   const { isRemember } = props;
@@ -38,6 +38,7 @@ const SocialLogin = (props: Props) => {
           const data = {
             name: user.displayName,
             email: user.email,
+            photoUrl: user.photoURL,
           };
 
           const api = "/auth/google-login";

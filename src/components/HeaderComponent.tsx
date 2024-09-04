@@ -1,10 +1,31 @@
 /** @format */
 
-import { Avatar, Button, Input, Space } from "antd";
+import { Avatar, Button, Dropdown, Input, MenuProps, Space } from "antd";
 import { Notification, SearchNormal1 } from "iconsax-react";
 import { colors } from "../constants/color";
+import { useAppSelector } from "../redux/hook";
+import { auth } from "../firebase/firebaseConfig";
+import { useDispatch } from "react-redux";
+import { removeAuth } from "../redux/reducers/authReducer";
+import { useNavigate } from "react-router-dom";
 
 const HeaderComponent = () => {
+  const user = useAppSelector((state: any) => state.authData.data);
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
+  const items: MenuProps["items"] = [
+    {
+      key: "logout",
+      label: "Logout",
+      onClick: async () => {
+        auth.signOut();
+        dispatch(removeAuth({}));
+        localStorage.clear();
+        navigate("/");
+      },
+    },
+  ];
   return (
     <div className="p-2 row bg-white" style={{ marginLeft: 2 }}>
       <div className="col">
@@ -24,12 +45,9 @@ const HeaderComponent = () => {
             type="text"
             icon={<Notification size={22} color={colors.gray600} />}
           />
-          <Avatar
-            src={
-              "https://photo-resize-zmp3.zmdcdn.me/w256_r1x1_jpeg/cover/1/b/4/9/1b49b879bd812dbdc5f9daf66c6a48bf.jpg"
-            }
-            size={40}
-          />
+          <Dropdown menu={{ items }}>
+            <Avatar src={user.photoUrl} size={40} />
+          </Dropdown>
         </Space>
       </div>
     </div>
