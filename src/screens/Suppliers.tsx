@@ -6,6 +6,8 @@ import handleAPI from "../apis/handleAPI";
 import { colors } from "../constants/color";
 import { ToogleSupplier } from "../modals";
 import { SupplierModel } from "../models/SupplierModel";
+import { FormModel } from "../models/FormModel";
+import TableComponent from "../components/TableComponent";
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -18,89 +20,90 @@ const Suppliers = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totals, setTotals] = useState<number>(10);
-  const columns: ColumnProps<SupplierModel>[] = [
-    {
-      key: "index",
-      dataIndex: "index",
-      title: "#",
-      align: "center",
-    },
-    {
-      key: "name",
-      title: "Supplier Name",
-      dataIndex: "name",
-    },
-    {
-      key: "product",
-      title: "Product Name",
-      dataIndex: "product",
-    },
-    {
-      key: "contact",
-      title: "Contact",
-      dataIndex: "contact",
-    },
-    {
-      key: "email",
-      title: "Email",
-      dataIndex: "email",
-    },
-    {
-      key: "type",
-      title: "Type",
-      dataIndex: "isTaking",
-      render: (isTaking: boolean) => (
-        <Text type={isTaking ? "success" : "danger"}>
-          {isTaking ? "Taking Return" : "Not Taking Return"}
-        </Text>
-      ),
-    },
-    {
-      key: "on",
-      title: "On the way",
-      dataIndex: "active",
-      render: (num) => num ?? "-",
-      align: "center",
-    },
-    {
-      key: "buttonContainer",
-      title: "Action",
-      dataIndex: "",
-      fixed: "right",
-      align: "right",
-      render: (item: SupplierModel) => (
-        <Space>
-          <Tooltip title="Edit">
-            <Button
-              type="text"
-              icon={<Edit2 size={20} />}
-              className="text-info"
-              onClick={() => {
-                setSupplierSelected(item), setIsVisibleModalAddNew(true);
-              }}
-            />
-          </Tooltip>
 
-          <Button
-            onClick={() =>
-              confirm({
-                title: "Confirm",
-                content: "Are you sure you want remove this supplier?",
-                onOk: () => removeSuppliers(item._id),
-              })
-            }
-            type="text"
-            icon={<UserRemove size={20} />}
-            className="text-danger"
-          />
-        </Space>
-      ),
-    },
-  ];
+  const [columns, setColumns] = useState<any[]>([]);
+  const [forms, setForms] = useState<FormModel>();
+  // const columns: ColumnProps<SupplierModel>[] = [
+  //   {
+  //     key: "index",
+  //     dataIndex: "index",
+  //     title: "#",
+  //     align: "center",
+  //   },
+  //   {
+  //     key: "name",
+  //     title: "Supplier Name",
+  //     dataIndex: "name",
+  //   },
+  //   {
+  //     key: "product",
+  //     title: "Product Name",
+  //     dataIndex: "product",
+  //   },
+  //   {
+  //     key: "contact",
+  //     title: "Contact",
+  //     dataIndex: "contact",
+  //   },
+  //   {
+  //     key: "email",
+  //     title: "Email",
+  //     dataIndex: "email",
+  //   },
+  //   {
+  //     key: "on",
+  //     title: "On the way",
+  //     dataIndex: "active",
+  //     render: (num) => num ?? "-",
+  //     align: "center",
+  //   },
+  //   {
+  //     key: "type",
+  //     title: "Type",
+  //     dataIndex: "isTaking",
+  //     render: (isTaking: boolean) => (
+  //       <Text type={isTaking ? "success" : "danger"}>
+  //         {isTaking ? "Taking Return" : "Not Taking Return"}
+  //       </Text>
+  //     ),
+  //   },
+  //   {
+  //     key: "buttonContainer",
+  //     title: "Action",
+  //     dataIndex: "",
+  //     fixed: "right",
+  //     align: "right",
+  //     render: (item: SupplierModel) => (
+  //
+  //     ),
+  //   },
+  // ];
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   useEffect(() => {
     getSuppiler();
   }, [page, pageSize]);
+
+  const getData = async () => {
+    setIsLoading(true);
+    try {
+      await getSuppiler();
+      await getForms();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getForms = async () => {
+    const api = `/supplier/get-form`;
+    const res = await handleAPI(api);
+    res.data && setForms(res.data);
+  };
 
   const getSuppiler = async () => {
     const api = `/supplier?page=${page}&pageSize=${pageSize}`;
@@ -141,45 +144,46 @@ const Suppliers = () => {
 
   return (
     <div>
-      <Table
-        pagination={{
-          showSizeChanger: true,
-          onShowSizeChange: (current, size) => {
-            setPageSize(size);
-          },
-          total: totals,
-          onChange(page, pageSize) {
-            setPage(page);
-          },
-        }}
-        scroll={{
-          y: "calc(100vh - 220px)",
-        }}
-        loading={isLoading}
-        dataSource={suppliers}
-        columns={columns}
-        title={() => (
-          <div className="row">
-            <div className="col">
-              <Title level={5}>Suppliers</Title>
-            </div>
-            <div className="col text-right">
-              <Space>
+      {forms && (
+        <TableComponent
+          total={totals}
+          onPageChange={(val) => {
+            setPage(val.page);
+            setPageSize(val.pageSize);
+          }}
+          forms={forms}
+          record={suppliers}
+          loading={isLoading}
+          onAddNew={() => setIsVisibleModalAddNew(true)}
+          extraColum={(item) => (
+            <Space>
+              <Tooltip title="Edit">
                 <Button
-                  onClick={() => setIsVisibleModalAddNew(true)}
-                  type="primary"
-                >
-                  Add Supplier
-                </Button>
-                <Button icon={<Sort size={18} color={colors.gray600} />}>
-                  Filters
-                </Button>
-                <Button>Download all</Button>
-              </Space>
-            </div>
-          </div>
-        )}
-      />
+                  type="text"
+                  icon={<Edit2 size={20} />}
+                  className="text-info"
+                  onClick={() => {
+                    setSupplierSelected(item), setIsVisibleModalAddNew(true);
+                  }}
+                />
+              </Tooltip>
+
+              <Button
+                onClick={() =>
+                  confirm({
+                    title: "Confirm",
+                    content: "Are you sure you want remove this supplier?",
+                    onOk: () => removeSuppliers(item._id),
+                  })
+                }
+                type="text"
+                icon={<UserRemove size={20} />}
+                className="text-danger"
+              />
+            </Space>
+          )}
+        />
+      )}
       <ToogleSupplier
         visible={isVisibleModalAddNew}
         onClose={() => {
