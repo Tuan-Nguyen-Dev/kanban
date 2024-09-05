@@ -5,15 +5,22 @@ export interface FormModel {
   layout?: FormLayout;
   labelCol: number;
   wrapperCol: number;
-  formItems: FormItem[];
+  formItems: FormItemModel[];
 }
 
-export interface FormItem {
+export interface FormItemModel {
   key: string;
   value: string;
   label: string;
   placeholder: string;
-  type: string;
+  type: "default" | "select" | "checkbox" | "number" | "tel" | "file" | "email";
+  lookup_item: SelectModel[];
   required: boolean;
   message: string;
+  default_value: string;
+}
+
+export interface SelectModel {
+  label: string;
+  value: string;
 }

@@ -8,6 +8,7 @@ import { replaceName } from "../utils/replaceName";
 import handleAPI from "../apis/handleAPI";
 import { SupplierModel } from "../models/SupplierModel";
 import { FormModel } from "../models/FormModel";
+import FormItem from "../components/FormItem";
 
 const { Paragraph } = Typography;
 interface Props {
@@ -145,19 +146,7 @@ const ToogleSupplier = (props: Props) => {
           form={form}
         >
           {formData.formItems.map((item) => (
-            <Form.Item
-              key={item.key}
-              name={item.value}
-              label={item.label}
-              rules={[
-                {
-                  required: item.required,
-                  message: item.message,
-                },
-              ]}
-            >
-              <Input placeholder={item.placeholder} allowClear />
-            </Form.Item>
+            <FormItem item={item} />
           ))}
 
           {/* 
