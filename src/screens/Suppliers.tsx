@@ -146,6 +146,7 @@ const Suppliers = () => {
     <div>
       {forms && (
         <TableComponent
+          api="supplier"
           total={totals}
           onPageChange={(val) => {
             setPage(val.page);

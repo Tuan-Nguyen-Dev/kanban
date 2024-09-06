@@ -1,2 +1,3 @@
 import ToogleSupplier from "./ToogleSupplier";
-export { ToogleSupplier };
+import ModalExportExcel from "./ModalExportExcel";
+export { ToogleSupplier, ModalExportExcel };
