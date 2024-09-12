@@ -13,6 +13,7 @@ import {
   ReportScreen,
   Suppliers,
 } from "../screens";
+import AddProduct from "../screens/inventories/AddProduct";
 
 const { Content, Footer, Header } = Layout;
 
@@ -30,7 +31,10 @@ const MainRouter = () => {
           <Content className="mt-3 mb-2 container-fluid bg-white">
             <Routes>
               <Route path="/" element={<HomeScreen />} />
-              <Route path="/inventory" element={<Inventories />} />
+              <Route>
+                <Route path="/inventory" element={<Inventories />} />
+                <Route path="/inventory/add-product" element={<AddProduct />} />
+              </Route>
               <Route path="/report" element={<ReportScreen />} />
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/orders" element={<Orders />} />

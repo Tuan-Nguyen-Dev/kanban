@@ -6,44 +6,79 @@ import { useDispatch } from "react-redux";
 import { refreshToken, removeAuth } from "../redux/reducers/authReducer";
 import handleAPI from "../apis/handleAPI";
 import { useAppSelector } from "../redux/hook";
+import { StatisticComponent } from "../components";
+import { StatisticModel } from "../modals/StatisticModel";
+import { LiaCoinsSolid } from "react-icons/lia";
+import { colors } from "../constants/color";
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const auth = useAppSelector((state) => state.authData.data);
 
-  const logout = () => {
-    dispatch(removeAuth({}));
-  };
+  const salesData: StatisticModel[] = [
+    {
+      key: `sales`,
+      description: "Sales",
+      color: `${colors.primary500}36`,
+      icon: <LiaCoinsSolid size={30} color={colors.primary500} />,
+      value: Math.floor(Math.random() * 1000000),
+      valueType: "curency",
+    },
+    {
+      key: `revenue`,
+      description: "Revenue",
+      color: `${colors.primary500}36`,
+      icon: <LiaCoinsSolid size={30} color={colors.primary500} />,
+      value: Math.floor(Math.random() * 1000000),
+      valueType: "number",
+    },
+    {
+      key: `profit`,
+      description: "Profit",
+      color: `${colors.primary500}36`,
+      icon: <LiaCoinsSolid size={30} color={colors.primary500} />,
+      value: Math.floor(Math.random() * 1000000),
+      valueType: "curency",
+    },
+    {
+      key: `cost`,
+      description: "Cost",
+      color: `${colors.primary500}36`,
+      icon: <LiaCoinsSolid size={30} color={colors.primary500} />,
+      value: Math.floor(Math.random() * 1000000),
+      valueType: "number",
+    },
+  ];
 
-  const getProducts = async () => {
-    const api = `/storage/products`;
-
-    try {
-      const res = await handleAPI(api);
-      console.log(res);
-    } catch (error: any) {
-      console.log(error);
-      if (error.error === "jwt expired") {
-        handleRefreshToken();
-      }
-    }
-  };
-
-  const handleRefreshToken = async () => {
-    const api = `/auth/refresh-token?id=${auth._id}`;
-
-    try {
-      const res = await handleAPI(api);
-      dispatch(refreshToken(res.data.token));
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const inventoryDatas: StatisticModel[] = [
+    {
+      key: `sales`,
+      description: "Sales",
+      color: `${colors.primary500}36`,
+      icon: <LiaCoinsSolid size={30} color={colors.primary500} />,
+      value: Math.floor(Math.random() * 1000000),
+      valueType: "curency",
+      type: "vertical",
+    },
+    {
+      key: `revenue`,
+      description: "Revenue",
+      color: `${colors.primary500}36`,
+      icon: <LiaCoinsSolid size={30} color={colors.primary500} />,
+      value: Math.floor(Math.random() * 1000000),
+      valueType: "number",
+      type: "vertical",
+    },
+  ];
 
   return (
-    <div>
-      <Button onClick={getProducts}>Logout</Button>
+    <div className="row">
+      <div className="col-md-8">
+        <StatisticComponent data={salesData} title="Sales Overview" />
+      </div>
+      <div className="col-md-4">
+        <StatisticComponent data={inventoryDatas} title="Inventory Summary" />
+      </div>
     </div>
   );
 };
