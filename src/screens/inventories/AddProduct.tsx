@@ -309,7 +309,7 @@ const AddProduct = () => {
       <ModalCategory
         visible={isVisableAddCategory}
         onClose={() => setIsVisableAddCategory(false)}
-        onAddNew={(val) => setCategories([...categories, val])}
+        onAddNew={async (val) => await getCategories()}
         values={categories}
       />
     </div>

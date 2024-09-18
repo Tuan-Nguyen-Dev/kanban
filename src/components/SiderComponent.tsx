@@ -1,12 +1,11 @@
 import { Layout, Menu, MenuProps, Typography } from "antd";
-import React from "react";
+import { Box, Chart, Home2, ProfileCircle } from "iconsax-react";
+import { CiViewList } from "react-icons/ci";
+import { FaTags } from "react-icons/fa";
+import { MdOutlineInventory } from "react-icons/md";
 import { Link } from "react-router-dom";
-import { Box, Chart, DocumentCode, Home2, ProfileCircle } from "iconsax-react";
 import { appInfo } from "../constants/appInfo";
 import { colors } from "../constants/color";
-import { MdOutlineInventory } from "react-icons/md";
-import { CiViewList } from "react-icons/ci";
-import { store } from "./../redux/store";
 
 const { Sider } = Layout;
 const { Text } = Typography;
@@ -29,6 +28,11 @@ const SiderComponent = () => {
           label: <Link to={`/inventory/add-product`}>Add New</Link>,
         },
       ],
+    },
+    {
+      key: "categories",
+      label: <Link to={"/categories"}>Categories</Link>,
+      icon: <FaTags size={20} className="text-muted" />,
     },
     {
       key: "Report",
