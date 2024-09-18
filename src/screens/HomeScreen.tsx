@@ -7,7 +7,7 @@ import { refreshToken, removeAuth } from "../redux/reducers/authReducer";
 import handleAPI from "../apis/handleAPI";
 import { useAppSelector } from "../redux/hook";
 import { StatisticComponent } from "../components";
-import { StatisticModel } from "../modals/StatisticModel";
+import { StatisticModel } from "../models/StatisticModel";
 import { LiaCoinsSolid } from "react-icons/lia";
 import { colors } from "../constants/color";
 

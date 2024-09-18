@@ -1,7 +1,7 @@
 import { Card, Space, Typography } from "antd";
 import React from "react";
 import { colors } from "../constants/color";
-import { StatisticModel } from "../modals/StatisticModel";
+import { StatisticModel } from "../models/StatisticModel";
 import { FormatCurrency } from "../utils/formatNumber";
 
 interface Props {
