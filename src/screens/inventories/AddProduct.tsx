@@ -9,7 +9,9 @@ import {
   Select,
   Space,
   Spin,
+  TreeSelect,
   Typography,
+  Image,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import handleAPI from "../../apis/handleAPI";
@@ -19,33 +21,60 @@ import { getTreeValues } from "../../utils/getTreeValues";
 import { replaceName } from "../../utils/replaceName";
 import { uploadFile } from "../../utils/uploadFile";
 
-const initContent = {
-  title: "",
-  description: "",
-  supplier: "",
-};
-
 const { Text, Paragraph, Title } = Typography;
 
 const AddProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState("");
-  const editorRef = useRef<any>(null);
   const [supplierOption, setSetsupplierOption] = useState<SelectModel[]>([]);
   const [fileUrl, setFileUrl] = useState("");
   const [isVisableAddCategory, setIsVisableAddCategory] = useState(false);
   const [categories, setCategories] = useState<TreeModel[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const [files, setFiles] = useState<any[]>([]);
+
+  const editorRef = useRef<any>(null);
+  const inputRef = useRef<any>(null);
 
   const [form] = Form.useForm();
 
+  console.log(files);
   useEffect(() => {
     getData();
   }, []);
 
-  const handleAddNewProduct = async () => {
+  const handleAddNewProduct = async (values: any) => {
     const content = editorRef.current.getContent();
 
-    console.log(content);
+    const data: any = {};
+    setIsCreating(true);
+
+    for (const i in values) {
+      data[`${i}`] = values[`${i}`] ?? "";
+    }
+    data.content = content;
+    data.slug = replaceName(values.title);
+
+    if (files.length > 0) {
+      const urls: string[] = [];
+
+      for (const i in files) {
+        if (files[i].size && files[i].size > 0) {
+          const url = await uploadFile(files[i]);
+          urls.push(url);
+        }
+      }
+      data.images = urls;
+    }
+
+    try {
+      await handleAPI(`/products/add-new`, data, "post");
+      window.history.back();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const getData = async () => {
@@ -79,7 +108,7 @@ const AddProduct = () => {
 
     const res = await handleAPI(api);
     const datas = res.data;
-    const data = datas.length > 0 ? getTreeValues(datas) : [];
+    const data = datas.length > 0 ? getTreeValues(datas, true) : [];
 
     setCategories(data);
   };
@@ -96,7 +125,12 @@ const AddProduct = () => {
     <div>
       <div className="container">
         <Title level={3}>Add New Product</Title>
-        <Form form={form} onFinish={handleAddNewProduct} layout="vertical">
+        <Form
+          disabled={isCreating}
+          form={form}
+          onFinish={handleAddNewProduct}
+          layout="vertical"
+        >
           <div className="row">
             <div className="col-8">
               <Form.Item
@@ -115,12 +149,12 @@ const AddProduct = () => {
               <Form.Item
                 name={"description"}
                 label="Description"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please enter description product",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Please enter description product",
+                //   },
+                // ]}
               >
                 <Input.TextArea
                   rows={4}
@@ -131,7 +165,7 @@ const AddProduct = () => {
               </Form.Item>
 
               <Editor
-                disabled={isLoading}
+                disabled={isLoading || isCreating}
                 onInit={(evt, editor) => (editorRef.current = editor)}
                 apiKey="f45yyv668h83hndco8yf9bde22ty6npb6kwk68y5p43k2ryh"
                 initialValue={content !== "" ? content : ""}
@@ -194,10 +228,15 @@ const AddProduct = () => {
             <div className="col-4">
               <Card className="mt-4">
                 <Space>
-                  <Button size="middle" onClick={() => form.submit()}>
+                  <Button
+                    loading={isCreating}
+                    size="middle"
+                    onClick={() => form.submit()}
+                  >
                     Cancel
                   </Button>
                   <Button
+                    loading={isCreating}
                     size="middle"
                     type="primary"
                     onClick={() => form.submit()}
@@ -208,8 +247,10 @@ const AddProduct = () => {
               </Card>
               <Card size="small" className="mt-4" title="Categories">
                 <Form.Item name={"categories"}>
-                  <Select
-                    mode="multiple"
+                  <TreeSelect
+                    allowClear
+                    treeData={categories}
+                    multiple
                     dropdownRender={(menu) => (
                       <>
                         {menu}
@@ -220,7 +261,7 @@ const AddProduct = () => {
                           type="link"
                           onClick={() => setIsVisableAddCategory(true)}
                         >
-                          Add new{" "}
+                          Add new
                         </Button>
                       </>
                     )}
@@ -248,6 +289,33 @@ const AddProduct = () => {
                   />
                 </Form.Item>
               </Card>
+
+              <Card
+                size="small"
+                className="mt-3"
+                title="Images"
+                extra={
+                  <Button size="small" onClick={() => inputRef.current.click()}>
+                    Upload Image
+                  </Button>
+                }
+              >
+                {files.length > 0 && (
+                  <Image.PreviewGroup>
+                    {Object.keys(files).map(
+                      (i) =>
+                        files[parseInt(i)].size &&
+                        files[parseInt(i)].size > 0 && (
+                          <Image
+                            src={URL.createObjectURL(files[parseInt(i)])}
+                            width={"50%"}
+                          />
+                        )
+                    )}
+                  </Image.PreviewGroup>
+                )}
+              </Card>
+
               <Card className="mt-3">
                 <Input
                   allowClear
@@ -270,6 +338,15 @@ const AddProduct = () => {
             </div>
           </div>
         </Form>
+      </div>
+      <div className="d-none">
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          ref={inputRef}
+          onChange={(vals: any) => setFiles(vals.target.files)}
+        />
       </div>
 
       <ModalCategory
