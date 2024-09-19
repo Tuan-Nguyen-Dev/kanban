@@ -1,6 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
-import { initializeApp } from "firebase/app";
 import {
   Button,
   Card,
@@ -13,11 +11,13 @@ import {
   Spin,
   Typography,
 } from "antd";
+import { useEffect, useRef, useState } from "react";
 import handleAPI from "../../apis/handleAPI";
+import { ModalCategory } from "../../modals";
 import { SelectModel, TreeModel } from "../../models/FormModel";
+import { getTreeValues } from "../../utils/getTreeValues";
 import { replaceName } from "../../utils/replaceName";
 import { uploadFile } from "../../utils/uploadFile";
-import { ModalCategory } from "../../modals";
 
 const initContent = {
   title: "",
@@ -72,40 +72,6 @@ const AddProduct = () => {
     }));
 
     setSetsupplierOption(option);
-  };
-
-  const getTreeValues = (data: any[], key: string) => {
-    const items: any[] = [];
-    const keys: string[] = [];
-
-    data.forEach((item) => {
-      if (item[`${key}`] && !keys.includes(item[`${key}`])) {
-        keys.push(item[`${key}`]);
-      }
-    });
-
-    data.forEach((item) => {
-      if (item[`${key}`]) {
-        const index = items.findIndex(
-          (element) => element.value === item[`${key}`]
-        );
-
-        const children = data.filter(
-          (element) => element[`${key}`] === item[`${key}`]
-        );
-
-        if (index !== -1) {
-          items[index].children = children.map((value) => ({
-            title: value.title,
-            value: value._id,
-          }));
-        }
-      } else {
-        items.push({ title: item.title, value: item._id });
-      }
-    });
-
-    return items;
   };
 
   const getCategories = async () => {
