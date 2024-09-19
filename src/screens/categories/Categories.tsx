@@ -36,23 +36,6 @@ const Categories = () => {
   
   */
 
-  const getCategories = async (api: string, isSelect?: boolean) => {
-    try {
-      setIsLoading(true);
-
-      const res = await handleAPI(api);
-      res.data && setCategories(res.data);
-
-      if (isSelect) {
-        setTreeValues(getTreeValues(res.data, "parentId"));
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const columns: ColumnProps<CategoryModel>[] = [
     {
       key: "title",
@@ -118,6 +101,23 @@ const Categories = () => {
     }
   };
 
+  const getCategories = async (api: string, isSelect?: boolean) => {
+    try {
+      setIsLoading(true);
+
+      const res = await handleAPI(api);
+      setCategories(getTreeValues(res.data, false));
+
+      if (isSelect) {
+        setTreeValues(getTreeValues(res.data));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return isLoading ? (
     <Spin
       style={{
@@ -136,7 +136,7 @@ const Categories = () => {
                 onClose={() => setCategorySelected(undefined)}
                 seleted={categorySelected}
                 values={treeValues}
-                onAddNew={(val) => {
+                onAddNew={async (val) => {
                   if (categorySelected) {
                     const items = [...categories];
                     const index = items.findIndex(
@@ -147,6 +147,7 @@ const Categories = () => {
                     }
                     setCategories(items);
                     setCategorySelected(undefined);
+                    await getCategories(`/products/get-categories`, true);
                   } else {
                     getCategories(
                       `/products/get-categories?page=${page}&pageSize=${pageSize}`

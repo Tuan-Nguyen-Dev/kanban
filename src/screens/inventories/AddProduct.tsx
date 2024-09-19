@@ -79,7 +79,7 @@ const AddProduct = () => {
 
     const res = await handleAPI(api);
     const datas = res.data;
-    const data = datas.length > 0 ? getTreeValues(datas, "parentId") : [];
+    const data = datas.length > 0 ? getTreeValues(datas) : [];
 
     setCategories(data);
   };
