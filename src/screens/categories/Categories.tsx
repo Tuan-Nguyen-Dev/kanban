@@ -42,7 +42,7 @@ const Categories = () => {
       title: "Name",
       dataIndex: "",
       render: (item: CategoryModel) => (
-        <Link to={`/categories/detail/${item.slug}?id=${item._id}`}>
+        <Link to={`/categories/details/${item.slug}?id=${item._id}`}>
           {item.title}
         </Link>
       ),
