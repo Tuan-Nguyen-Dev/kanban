@@ -7,6 +7,7 @@ import ManageStore from "./ManageStore";
 import Orders from "./Orders";
 import ReportScreen from "./ReportScreen";
 import Suppliers from "./Suppliers";
+import ProductDetail from "./inventories/ProductDetail";
 
 export {
   Login,
@@ -16,4 +17,5 @@ export {
   Orders,
   ReportScreen,
   Suppliers,
+  ProductDetail,
 };

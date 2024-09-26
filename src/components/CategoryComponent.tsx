@@ -24,7 +24,6 @@ const CategoryComponent = (props: Props) => {
     try {
       const res = await handleAPI(api);
       res.data && setCategories(res.data);
-      console.log(res);
     } catch (error) {
       console.log(error);
     }

@@ -1,12 +1,25 @@
-import { Avatar, Button, Space, Table, Tooltip } from "antd";
-import { useEffect, useState } from "react";
-import handleAPI from "../../apis/handleAPI";
-import { ProductModel } from "../../models/ProductModel";
+import {
+  Avatar,
+  Button,
+  Modal,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
 import { ColumnProps } from "antd/es/table";
-import CategoryComponent from "../../components/CategoryComponent";
+import { Edit2, Trash } from "iconsax-react";
+import { useEffect, useState } from "react";
 import { MdLibraryAdd } from "react-icons/md";
+import { Link } from "react-router-dom";
+import handleAPI from "../../apis/handleAPI";
+import CategoryComponent from "../../components/CategoryComponent";
 import { colors } from "../../constants/color";
 import { AddSubProductModal } from "../../modals";
+import { ProductModel, SubProductModel } from "../../models/ProductModel";
+
+const { confirm } = Modal;
 
 const Inventories = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,10 +33,8 @@ const Inventories = () => {
 
   const getProducts = async () => {
     setIsLoading(true);
-
     try {
       const res = await handleAPI(`/products`);
-
       setProducts(res.data);
     } catch (error) {
       console.log(error);
@@ -32,35 +43,45 @@ const Inventories = () => {
     }
   };
 
-  /*
-		title,
-		description
-		categories,
-		colors
-		size
-		price,
-		comments
-		buys
-		stocks
-		actions
-		images
-	*/
+  const getMixMaxValues = (data: SubProductModel[]) => {
+    const nums: number[] = [];
+
+    if (data.length > 0) {
+      data.forEach((item) => nums.push(item.price));
+    }
+    return nums.length > 0
+      ? `${Math.min(...nums).toLocaleString()} - ${Math.max(
+          ...nums
+        ).toLocaleString()} `
+      : "";
+  };
+
+  const handleRemoveProduct = (id: string) => {};
 
   const columns: ColumnProps<ProductModel>[] = [
     {
       key: "title",
-      dataIndex: "title",
+      dataIndex: "",
       title: "Title",
+      width: 300,
+      render: (items: ProductModel) => (
+        <Link to={`/inventory/detail/${items.slug}?id=${items._id}`}>
+          {items.title}
+        </Link>
+      ),
     },
     {
       key: "description",
       dataIndex: "description",
       title: "Description",
+      width: 400,
     },
     {
       key: "categories",
       dataIndex: "categories",
       title: "Categories",
+      width: 300,
+
       render: (ids: string[]) => (
         <Space>
           {ids.map((id) => (
@@ -73,6 +94,8 @@ const Inventories = () => {
       key: "images",
       dataIndex: "images",
       title: "Image",
+      width: 300,
+
       render: (imgs: string[]) =>
         imgs &&
         imgs.length > 0 && (
@@ -86,12 +109,68 @@ const Inventories = () => {
         ),
     },
     {
+      key: "colors",
+      width: 200,
+      dataIndex: "subItems",
+      title: "Colors",
+      render: (items: SubProductModel[]) => (
+        <Space>
+          {items.length > 0 &&
+            items.map((item, index) => (
+              <div
+                style={{
+                  width: 24,
+                  height: 24,
+                  backgroundColor: item.color,
+                  borderRadius: 12,
+                }}
+                key={`colors${item.color}${index}`}
+              />
+            ))}
+        </Space>
+      ),
+    },
+    {
+      key: "price",
+      dataIndex: "subItems",
+      width: 300,
+      title: "Price",
+      render: (items: SubProductModel[]) => (
+        <Typography.Text>{getMixMaxValues(items)}</Typography.Text>
+      ),
+    },
+    {
+      key: "sizes",
+      dataIndex: "subItems",
+      width: 150,
+
+      title: "Sizes",
+      render: (items: SubProductModel[]) => (
+        <Space wrap>
+          {items.length > 0 &&
+            items.map((item) => (
+              <Tag key={`size${item.size}`}>{item.size}</Tag>
+            ))}
+        </Space>
+      ),
+    },
+    {
+      key: "stock",
+      width: 100,
+      dataIndex: "subItems",
+      title: "Stock",
+      render: (items: SubProductModel[]) =>
+        items.reduce((a, b) => a + b.qty, 0),
+      align: "right",
+    },
+
+    {
       key: "action",
       title: "Action",
       dataIndex: "",
       render: (item: ProductModel) => (
         <Space>
-          <Tooltip title="Add sub product">
+          <Tooltip title="Add sub product" key={"addSubProduct"}>
             <Button
               icon={<MdLibraryAdd color={colors.primary500} size={20} />}
               type="text"
@@ -101,9 +180,35 @@ const Inventories = () => {
               }}
             />
           </Tooltip>
+          <Tooltip title="Edit sub product" key={"btnEdit"}>
+            <Button
+              icon={<Edit2 color={colors.primary500} size={20} />}
+              type="text"
+              onClick={() => {
+                setProductSelected(item);
+                console.log(productSelected);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Remove sub product" key={"btnRemove"}>
+            <Button
+              icon={<Trash className="text-danger" size={20} />}
+              type="text"
+              onClick={() => {
+                confirm({
+                  title: "Confirm?",
+                  content: "Are you sure delete?",
+                  onCancel: () => console.log("Cancel"),
+                  onOk: () => handleRemoveProduct(item._id),
+                });
+              }}
+            />
+          </Tooltip>
         </Space>
       ),
       align: "right",
+      fixed: "right",
+      width: 150,
     },
   ];
 
@@ -116,6 +221,7 @@ const Inventories = () => {
         scroll={{
           x: "100%",
         }}
+        size="small"
       />
       <AddSubProductModal
         product={productSelected}
@@ -123,6 +229,9 @@ const Inventories = () => {
         onClose={() => {
           setProductSelected(undefined);
           setIsVisibleAddSubProduct(false);
+        }}
+        onAddNew={async (val) => {
+          await getProducts();
         }}
       />
     </div>

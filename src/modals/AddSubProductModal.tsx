@@ -4,22 +4,27 @@ import {
   Image,
   Input,
   InputNumber,
+  message,
   Modal,
   Typography,
   Upload,
   UploadProps,
 } from "antd";
-import React, { useState } from "react";
-import { ProductModel } from "../models/ProductModel";
+import { useEffect, useState } from "react";
+import handleAPI from "../apis/handleAPI";
+import { colors } from "../constants/color";
+import { ProductModel, SubProductModel } from "../models/ProductModel";
+import { uploadFile } from "../utils/uploadFile";
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   product?: ProductModel;
+  onAddNew: (val: SubProductModel) => void;
 }
 
 const AddSubProductModal = (props: Props) => {
-  const { onClose, visible, product } = props;
+  const { onClose, visible, product, onAddNew } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
@@ -27,13 +32,59 @@ const AddSubProductModal = (props: Props) => {
   const [previewImage, setPreviewImage] = useState("");
   const [form] = Form.useForm();
 
-  const handleAddSubproduct = async (values: any) => {
-    console.log(product?._id);
-  };
+  useEffect(() => {
+    form.setFieldValue("color", colors.primary500);
+  }, []);
 
   const handleCancel = () => {
     form.resetFields();
     onClose();
+  };
+
+  const handleAddSubproduct = async (values: any) => {
+    if (product) {
+      const data: any = {};
+
+      for (const i in values) {
+        data[i] = values[i] ?? "";
+      }
+      data.productId = product._id;
+
+      if (fileList.length > 0) {
+        const urls: string[] = [];
+
+        fileList.forEach(async (file) => {
+          const url = await uploadFile(file.originFileObj);
+          url && urls.push(url);
+        });
+        data.images = urls;
+      }
+
+      if (data.color) {
+        data.color =
+          typeof data.color === "string"
+            ? data.color
+            : data.color.toHexString();
+      }
+
+      console.log(data);
+      setIsLoading(true);
+
+      try {
+        const api = `/products/add-sub-product`;
+
+        const res = await handleAPI(api, data, "post");
+        console.log(res.data);
+        onAddNew(res.data);
+        handleCancel();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      message.error("Need to add a product details");
+    }
   };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
@@ -55,6 +106,10 @@ const AddSubProductModal = (props: Props) => {
       open={visible}
       onCancel={handleCancel}
       onClose={handleCancel}
+      onOk={() => form.submit()}
+      okButtonProps={{
+        loading: isLoading,
+      }}
     >
       <Typography.Title level={5}>{product?.title}</Typography.Title>
       <Form
@@ -65,7 +120,7 @@ const AddSubProductModal = (props: Props) => {
         disabled={isLoading}
       >
         <Form.Item name={"color"} label="Color">
-          <ColorPicker />
+          <ColorPicker format="hex" />
         </Form.Item>
         <Form.Item
           rules={[

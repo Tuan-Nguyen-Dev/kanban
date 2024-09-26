@@ -53,3 +53,7 @@
 .ant-card-body {
   padding: 16px !important;
 }
+
+a {
+  text-decoration: none !important;
+}
