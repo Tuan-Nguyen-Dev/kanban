@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  message,
   Modal,
   Space,
   Table,
@@ -56,7 +57,28 @@ const Inventories = () => {
       : "";
   };
 
-  const handleRemoveProduct = (id: string) => {};
+  const handleRemoveProduct = async (id: string) => {
+    const api = `/products/delete?id=${id}`;
+    try {
+      await handleAPI(api, undefined, "delete");
+
+      // cach 1: gọi lại api để load lại dữ liệu
+      // await getProducts()
+      // Cách 2: xoá item ra khỏi mảng, set lại state
+      // const items = [...products];
+      // const index = items.findIndex((element) => element._id === id);
+      // if (index !== -1) {
+      //   items.splice(index, 1);
+      // }
+      // setProducts(items);
+      setProducts((products) =>
+        products.filter((element) => element._id !== id)
+      );
+      message.success("Product removed!!!");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const columns: ColumnProps<ProductModel>[] = [
     {
