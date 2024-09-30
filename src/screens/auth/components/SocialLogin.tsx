@@ -30,7 +30,6 @@ const SocialLogin = (props: Props) => {
 
     try {
       const result = await signInWithPopup(auth, provider);
-
       if (result) {
         const user = result.user;
 
@@ -45,7 +44,7 @@ const SocialLogin = (props: Props) => {
 
           try {
             const res: any = await handleAPI(api, data, "post");
-            console.log("res", res);
+
             message.success(res.message);
             dispatch(addAuth(res.data));
             if (isRemember) {
@@ -73,6 +72,7 @@ const SocialLogin = (props: Props) => {
 
   return (
     <Button
+      disabled={isLoading}
       loading={isLoading}
       onClick={handleLoginWithGoogle}
       style={{

@@ -20,6 +20,7 @@ import { SelectModel, TreeModel } from "../../models/FormModel";
 import { getTreeValues } from "../../utils/getTreeValues";
 import { replaceName } from "../../utils/replaceName";
 import { uploadFile } from "../../utils/uploadFile";
+import { useSearchParams } from "react-router-dom";
 
 const { Text, Paragraph, Title } = Typography;
 
@@ -33,15 +34,39 @@ const AddProduct = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
 
+  const [searchParam] = useSearchParams();
+  const id = searchParam.get("id");
+
   const editorRef = useRef<any>(null);
   const inputRef = useRef<any>(null);
 
   const [form] = Form.useForm();
 
-  console.log(files);
   useEffect(() => {
     getData();
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      getProductDetail(id);
+    }
+  }, [id]);
+
+  const getProductDetail = async (id: string) => {
+    const api = `/products/detail?id=${id}`;
+    try {
+      const res = await handleAPI(api);
+      const item = res.data;
+
+      if (item) {
+        console.log(item);
+        form.setFieldsValue(item);
+        setContent(item.content);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleAddNewProduct = async (values: any) => {
     const content = editorRef.current.getContent();
@@ -68,7 +93,12 @@ const AddProduct = () => {
     }
 
     try {
-      await handleAPI(`/products/add-new`, data, "post");
+      await handleAPI(
+        `/products/${id ? `update?id=${id}` : `add-new`}`,
+        data,
+        id ? "put" : "post"
+      );
+
       window.history.back();
     } catch (error) {
       console.log(error);
@@ -124,7 +154,7 @@ const AddProduct = () => {
   ) : (
     <div>
       <div className="container">
-        <Title level={3}>Add New Product</Title>
+        <Title level={3}>{id ? "Detail Product" : "Add New Product"}</Title>
         <Form
           disabled={isCreating}
           form={form}
@@ -163,65 +193,41 @@ const AddProduct = () => {
                   showCount
                 />
               </Form.Item>
-
               <Editor
                 disabled={isLoading || isCreating}
+                apiKey="ikfkh2oosyq8z4b77hhj1ssxu7js46chtdrcq9j5lqum494c"
                 onInit={(evt, editor) => (editorRef.current = editor)}
-                apiKey="f45yyv668h83hndco8yf9bde22ty6npb6kwk68y5p43k2ryh"
                 initialValue={content !== "" ? content : ""}
                 init={{
                   height: 500,
                   menubar: true,
                   plugins: [
-                    // Core editing features
-                    "anchor",
+                    "advlist",
                     "autolink",
-                    "charmap",
-                    "codesample",
-                    "emoticons",
-                    "image",
-                    "link",
                     "lists",
-                    "media",
+                    "link",
+                    "image",
+                    "charmap",
+                    "preview",
+                    "anchor",
                     "searchreplace",
-                    "table",
                     "visualblocks",
+                    "code",
+                    "fullscreen",
+                    "insertdatetime",
+                    "media",
+                    "table",
+                    "code",
+                    "help",
                     "wordcount",
-                    // Your account includes a free trial of TinyMCE premium features
-                    // Try the most popular premium features until Sep 26, 2024:
-                    "checklist",
-                    "mediaembed",
-                    "casechange",
-                    "export",
-                    "formatpainter",
-                    "pageembed",
-                    "a11ychecker",
-                    "tinymcespellchecker",
-                    "permanentpen",
-                    "powerpaste",
-                    "advtable",
-                    "advcode",
-                    "editimage",
-                    "advtemplate",
-                    "ai",
-                    "mentions",
-                    "tinycomments",
-                    "tableofcontents",
-                    "footnotes",
-                    "mergetags",
-                    "autocorrect",
-                    "typography",
-                    "inlinecss",
-                    "markdown",
                   ],
                   toolbar:
-                    "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-                  tinycomments_mode: "embedded",
-                  tinycomments_author: "Author name",
-                  mergetags_list: [
-                    { value: "First.Name", title: "First Name" },
-                    { value: "Email", title: "Email" },
-                  ],
+                    "undo redo | blocks | " +
+                    "bold italic forecolor | alignleft aligncenter " +
+                    "alignright alignjustify | bullist numlist outdent indent | " +
+                    "removeformat | help",
+                  content_style:
+                    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                 }}
               />
             </div>
@@ -241,7 +247,7 @@ const AddProduct = () => {
                     type="primary"
                     onClick={() => form.submit()}
                   >
-                    Submit
+                    {id ? "Update" : "Submit"}
                   </Button>
                 </Space>
               </Card>

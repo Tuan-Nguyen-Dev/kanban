@@ -13,7 +13,7 @@ import { ColumnProps } from "antd/es/table";
 import { Edit2, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
 import { MdLibraryAdd } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import handleAPI from "../../apis/handleAPI";
 import CategoryComponent from "../../components/CategoryComponent";
 import { colors } from "../../constants/color";
@@ -27,6 +27,8 @@ const Inventories = () => {
   const [products, setProducts] = useState<ProductModel[]>([]);
   const [isVisibleAddSubProduct, setIsVisibleAddSubProduct] = useState(false);
   const [productSelected, setProductSelected] = useState<ProductModel>();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getProducts();
@@ -135,22 +137,29 @@ const Inventories = () => {
       width: 200,
       dataIndex: "subItems",
       title: "Colors",
-      render: (items: SubProductModel[]) => (
-        <Space>
-          {items.length > 0 &&
-            items.map((item, index) => (
-              <div
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: item.color,
-                  borderRadius: 12,
-                }}
-                key={`colors${item.color}${index}`}
-              />
-            ))}
-        </Space>
-      ),
+      render: (items: SubProductModel[]) => {
+        const colors: string[] = [];
+
+        items.forEach(
+          (sub) => !colors.includes(sub.color) && colors.push(sub.color)
+        );
+        return (
+          <Space>
+            {colors.length > 0 &&
+              colors.map((item, index) => (
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: item,
+                    borderRadius: 12,
+                  }}
+                  key={`colors${item}${index}`}
+                />
+              ))}
+          </Space>
+        );
+      },
     },
     {
       key: "price",
@@ -207,8 +216,7 @@ const Inventories = () => {
               icon={<Edit2 color={colors.primary500} size={20} />}
               type="text"
               onClick={() => {
-                setProductSelected(item);
-                console.log(productSelected);
+                navigate(`/inventory/add-product?id=${item._id}`);
               }}
             />
           </Tooltip>
