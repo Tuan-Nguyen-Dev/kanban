@@ -21,7 +21,7 @@ export const uploadFile = async (file: any) => {
   }
 };
 
-export const handleResize = (file: any) => {
+export const handleResize = (file: any) =>
   new Promise((resolve) => {
     Resizer.imageFileResizer(
       file,
@@ -36,4 +36,3 @@ export const handleResize = (file: any) => {
       "file"
     );
   });
-};
