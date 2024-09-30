@@ -119,7 +119,6 @@ const Inventories = () => {
       dataIndex: "images",
       title: "Image",
       width: 300,
-
       render: (imgs: string[]) =>
         imgs &&
         imgs.length > 0 && (

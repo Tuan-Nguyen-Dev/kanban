@@ -12,6 +12,8 @@ import {
   TreeSelect,
   Typography,
   Image,
+  UploadProps,
+  Upload,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import handleAPI from "../../apis/handleAPI";
@@ -21,6 +23,7 @@ import { getTreeValues } from "../../utils/getTreeValues";
 import { replaceName } from "../../utils/replaceName";
 import { uploadFile } from "../../utils/uploadFile";
 import { useSearchParams } from "react-router-dom";
+import { url } from "inspector";
 
 const { Text, Paragraph, Title } = Typography;
 
@@ -32,13 +35,12 @@ const AddProduct = () => {
   const [isVisableAddCategory, setIsVisableAddCategory] = useState(false);
   const [categories, setCategories] = useState<TreeModel[]>([]);
   const [isCreating, setIsCreating] = useState(false);
-  const [files, setFiles] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
 
   const editorRef = useRef<any>(null);
-  const inputRef = useRef<any>(null);
 
   const [form] = Form.useForm();
 
@@ -62,6 +64,18 @@ const AddProduct = () => {
         console.log(item);
         form.setFieldsValue(item);
         setContent(item.content);
+        if (item.images && item.images.length > 0) {
+          const items = [...fileList];
+          item.images.forEach((url: string) =>
+            items.push({
+              uid: `${Math.floor(Math.random() * 1000000)}`,
+              name: url,
+              status: "done",
+              url,
+            })
+          );
+          setFileList(items);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -80,15 +94,17 @@ const AddProduct = () => {
     data.content = content;
     data.slug = replaceName(values.title);
 
-    if (files.length > 0) {
+    if (fileList.length > 0) {
       const urls: string[] = [];
 
-      for (const i in files) {
-        if (files[i].size && files[i].size > 0) {
-          const url = await uploadFile(files[i]);
-          urls.push(url);
+      fileList.forEach(async (file) => {
+        if (file.originFileObj) {
+          const url = await uploadFile(file.originFileObj);
+          url && urls.push(url);
+        } else {
+          urls.push(file.url);
         }
-      }
+      });
       data.images = urls;
     }
 
@@ -141,6 +157,21 @@ const AddProduct = () => {
     const data = datas.length > 0 ? getTreeValues(datas, true) : [];
 
     setCategories(data);
+  };
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    const items = newFileList.map((item) =>
+      item.originFileObj
+        ? {
+            ...item,
+            url: item.originFileObj
+              ? URL.createObjectURL(item.originFileObj)
+              : "",
+            status: "done",
+          }
+        : { ...item }
+    );
+    setFileList(items);
   };
 
   return isLoading ? (
@@ -296,30 +327,16 @@ const AddProduct = () => {
                 </Form.Item>
               </Card>
 
-              <Card
-                size="small"
-                className="mt-3"
-                title="Images"
-                extra={
-                  <Button size="small" onClick={() => inputRef.current.click()}>
-                    Upload Image
-                  </Button>
-                }
-              >
-                {files.length > 0 && (
-                  <Image.PreviewGroup>
-                    {Object.keys(files).map(
-                      (i) =>
-                        files[parseInt(i)].size &&
-                        files[parseInt(i)].size > 0 && (
-                          <Image
-                            src={URL.createObjectURL(files[parseInt(i)])}
-                            width={"50%"}
-                          />
-                        )
-                    )}
-                  </Image.PreviewGroup>
-                )}
+              <Card size="small" className="mt-3" title="Images">
+                <Upload
+                  multiple
+                  fileList={fileList}
+                  accept="image/*"
+                  listType="picture-card"
+                  onChange={handleChange}
+                >
+                  Upload
+                </Upload>
               </Card>
 
               <Card className="mt-3">
@@ -344,15 +361,6 @@ const AddProduct = () => {
             </div>
           </div>
         </Form>
-      </div>
-      <div className="d-none">
-        <input
-          type="file"
-          multiple
-          accept="image/*"
-          ref={inputRef}
-          onChange={(vals: any) => setFiles(vals.target.files)}
-        />
       </div>
 
       <ModalCategory
