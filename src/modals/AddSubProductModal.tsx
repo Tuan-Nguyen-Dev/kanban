@@ -119,14 +119,7 @@ const AddSubProductModal = (props: Props) => {
         disabled={isLoading}
       >
         <Form.Item name="color" label="Color">
-          <ColorPicker
-            format="hex"
-            // onChange={(val) => {
-            // 	const color = typeof val === 'string' ? val : val.toHexString();
-
-            // 	console.log(color);
-            // }}
-          />
+          <ColorPicker format="hex" />
         </Form.Item>
         <Form.Item
           rules={[

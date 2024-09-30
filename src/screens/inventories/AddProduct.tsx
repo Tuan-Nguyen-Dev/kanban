@@ -27,12 +27,13 @@ import { ModalCategory } from "../../modals";
 import { getTreeValues } from "../../utils/getTreeValues";
 import { useSearchParams } from "react-router-dom";
 import ProductDetail from "./ProductDetail";
+import { url } from "inspector";
 
 const { Text, Title, Paragraph } = Typography;
 
 const AddProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [content, setcontent] = useState("");
+  const [content, setContent] = useState("");
   const [supplierOptions, setSupplierOptions] = useState<SelectModel[]>([]);
   const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [categories, setCategories] = useState<TreeModel[]>([]);
@@ -47,7 +48,6 @@ const AddProduct = () => {
   const editorRef = useRef<any>(null);
   const [form] = Form.useForm();
 
-  // console.log(files);
   useEffect(() => {
     getData();
   }, []);
@@ -76,9 +76,11 @@ const AddProduct = () => {
       const res = await handleAPI(api);
       const item = res.data;
 
+      console.log(item);
+
       if (item) {
         form.setFieldsValue(item);
-        setcontent(item.content);
+        setContent(item.content);
         if (item.images && item.images.length > 0) {
           const items = [...fileList];
           item.images.forEach((url: string) =>
@@ -111,6 +113,7 @@ const AddProduct = () => {
 
     if (fileList.length > 0) {
       const urls: string[] = [];
+
       fileList.forEach(async (file) => {
         if (file.originFileObj) {
           const url = await uploadFile(file.originFileObj);
@@ -118,15 +121,27 @@ const AddProduct = () => {
         } else {
           urls.push(file.url);
         }
-        data.images = urls;
-      });
-    }
 
+        if (urls.length === fileList.length) {
+          await handleCreateProduct({ ...data, images: urls });
+        }
+      });
+    } else {
+      await handleCreateProduct(data);
+    }
+  };
+
+  const handleCreateProduct = async (data: any) => {
     try {
-      const api = `/products/${id ? `update?id=${id}` : `add-new`}`;
-      await handleAPI(api, data, id ? "put" : "post");
-      // console.log(api);
-      console.log(data);
+      const res = await handleAPI(
+        `/products/${id ? `update?id=${id}` : "add-new"}`,
+        {
+          ...data,
+          images: data.images,
+        },
+        id ? "put" : "post"
+      );
+      console.log(res.data);
       window.history.back();
     } catch (error) {
       console.log(error);
@@ -178,7 +193,7 @@ const AddProduct = () => {
   ) : (
     <div>
       <div className="container">
-        <Title level={3}> {id ? "Edit Product" : "Add new Product"}</Title>
+        <Title level={3}>Add new Product</Title>
         <Form
           disabled={isCreating}
           size="large"
@@ -208,65 +223,41 @@ const AddProduct = () => {
                   allowClear
                 />
               </Form.Item>
-
               <Editor
                 disabled={isLoading || isCreating}
+                apiKey="ikfkh2oosyq8z4b77hhj1ssxu7js46chtdrcq9j5lqum494c"
                 onInit={(evt, editor) => (editorRef.current = editor)}
-                apiKey="f45yyv668h83hndco8yf9bde22ty6npb6kwk68y5p43k2ryh"
                 initialValue={content !== "" ? content : ""}
                 init={{
                   height: 500,
                   menubar: true,
                   plugins: [
-                    // Core editing features
-                    "anchor",
+                    "advlist",
                     "autolink",
-                    "charmap",
-                    "codesample",
-                    "emoticons",
-                    "image",
-                    "link",
                     "lists",
-                    "media",
+                    "link",
+                    "image",
+                    "charmap",
+                    "preview",
+                    "anchor",
                     "searchreplace",
-                    "table",
                     "visualblocks",
+                    "code",
+                    "fullscreen",
+                    "insertdatetime",
+                    "media",
+                    "table",
+                    "code",
+                    "help",
                     "wordcount",
-                    // Your account includes a free trial of TinyMCE premium features
-                    // Try the most popular premium features until Sep 26, 2024:
-                    "checklist",
-                    "mediaembed",
-                    "casechange",
-                    "export",
-                    "formatpainter",
-                    "pageembed",
-                    "a11ychecker",
-                    "tinymcespellchecker",
-                    "permanentpen",
-                    "powerpaste",
-                    "advtable",
-                    "advcode",
-                    "editimage",
-                    "advtemplate",
-                    "ai",
-                    "mentions",
-                    "tinycomments",
-                    "tableofcontents",
-                    "footnotes",
-                    "mergetags",
-                    "autocorrect",
-                    "typography",
-                    "inlinecss",
-                    "markdown",
                   ],
                   toolbar:
-                    "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-                  tinycomments_mode: "embedded",
-                  tinycomments_author: "Author name",
-                  mergetags_list: [
-                    { value: "First.Name", title: "First Name" },
-                    { value: "Email", title: "Email" },
-                  ],
+                    "undo redo | blocks | " +
+                    "bold italic forecolor | alignleft aligncenter " +
+                    "alignright alignjustify | bullist numlist outdent indent | " +
+                    "removeformat | help",
+                  content_style:
+                    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                 }}
               />
             </div>
@@ -286,7 +277,7 @@ const AddProduct = () => {
                     size="middle"
                     onClick={() => form.submit()}
                   >
-                    Submit
+                    {id ? "Update" : "Submit"}
                   </Button>
                 </Space>
               </Card>

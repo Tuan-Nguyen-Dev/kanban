@@ -13,7 +13,7 @@ import { ColumnProps } from "antd/es/table";
 import { Edit2, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
 import { MdLibraryAdd } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import handleAPI from "../../apis/handleAPI";
 import CategoryComponent from "../../components/CategoryComponent";
 import { colors } from "../../constants/color";
@@ -27,6 +27,8 @@ const Inventories = () => {
   const [products, setProducts] = useState<ProductModel[]>([]);
   const [isVisibleAddSubProduct, setIsVisibleAddSubProduct] = useState(false);
   const [productSelected, setProductSelected] = useState<ProductModel>();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     getProducts();
@@ -72,30 +74,180 @@ const Inventories = () => {
     }
   };
 
+  // const columns: ColumnProps<ProductModel>[] = [
+  //   {
+  //     key: "title",
+  //     dataIndex: "",
+  //     title: "Title",
+  //     width: 300,
+  //     render: (items: ProductModel) => (
+  //       <Link to={`/inventory/detail/${items.slug}?id=${items._id}`}>
+  //         {items.title}
+  //       </Link>
+  //     ),
+  //   },
+  //   {
+  //     key: "description",
+  //     dataIndex: "description",
+  //     title: "Description",
+  //     width: 400,
+  //   },
+  //   {
+  //     key: "categories",
+  //     dataIndex: "categories",
+  //     title: "Categories",
+  //     width: 300,
+
+  //     render: (ids: string[]) => (
+  //       <Space>
+  //         {ids.map((id) => (
+  //           <CategoryComponent id={id} />
+  //         ))}
+  //       </Space>
+  //     ),
+  //   },
+  //   {
+  //     key: "images",
+  //     dataIndex: "images",
+  //     title: "Images",
+  //     render: (imgs: string[]) =>
+  //       imgs &&
+  //       imgs.length > 0 && (
+  //         <Space>
+  //           <Avatar.Group>
+  //             {imgs.map((img) => (
+  //               <Avatar src={img} size={40} />
+  //             ))}
+  //           </Avatar.Group>
+  //         </Space>
+  //       ),
+  //     width: 300,
+  //   },
+
+  //   {
+  //     key: "colors",
+  //     width: 200,
+  //     dataIndex: "subItems",
+  //     title: "Colors",
+  //     render: (items: SubProductModel[]) => (
+  //       <Space>
+  //         {items.length > 0 &&
+  //           items.map((item, index) => (
+  //             <div
+  //               style={{
+  //                 width: 24,
+  //                 height: 24,
+  //                 backgroundColor: item.color,
+  //                 borderRadius: 12,
+  //               }}
+  //               key={`colors${item.color}${index}`}
+  //             />
+  //           ))}
+  //       </Space>
+  //     ),
+  //   },
+
+  //   {
+  //     key: "price",
+  //     dataIndex: "subItems",
+  //     width: 300,
+  //     title: "Price",
+  //     render: (items: SubProductModel[]) => (
+  //       <Typography.Text>{getMixMaxValues(items)}</Typography.Text>
+  //     ),
+  //   },
+  //   {
+  //     key: "sizes",
+  //     dataIndex: "subItems",
+  //     width: 150,
+
+  //     title: "Sizes",
+  //     render: (items: SubProductModel[]) => (
+  //       <Space wrap>
+  //         {items.length > 0 &&
+  //           items.map((item) => (
+  //             <Tag key={`size${item.size}`}>{item.size}</Tag>
+  //           ))}
+  //       </Space>
+  //     ),
+  //   },
+  //   {
+  //     key: "stock",
+  //     width: 100,
+  //     dataIndex: "subItems",
+  //     title: "Stock",
+  //     render: (items: SubProductModel[]) =>
+  //       items.reduce((a, b) => a + b.qty, 0),
+  //     align: "right",
+  //   },
+
+  //   {
+  //     key: "action",
+  //     title: "Action",
+  //     dataIndex: "",
+  //     render: (item: ProductModel) => (
+  //       <Space>
+  //         <Tooltip title="Add sub product" key={"addSubProduct"}>
+  //           <Button
+  //             icon={<MdLibraryAdd color={colors.primary500} size={20} />}
+  //             type="text"
+  //             onClick={() => {
+  //               setProductSelected(item);
+  //               setIsVisibleAddSubProduct(true);
+  //             }}
+  //           />
+  //         </Tooltip>
+  //         <Tooltip title="Edit sub product" key={"btnEdit"}>
+  //           <Button
+  //             icon={<Edit2 color={colors.primary500} size={20} />}
+  //             type="text"
+  //             onClick={() => navigate(`/inventory/add-product?id=${item._id}`)}
+  //           />
+  //         </Tooltip>
+  //         <Tooltip title="Remove sub product" key={"btnRemove"}>
+  //           <Button
+  //             icon={<Trash className="text-danger" size={20} />}
+  //             type="text"
+  //             onClick={() => {
+  //               confirm({
+  //                 title: "Confirm?",
+  //                 content: "Are you sure delete?",
+  //                 onCancel: () => console.log("Cancel"),
+  //                 onOk: () => handleRemoveProduct(item._id),
+  //               });
+  //             }}
+  //           />
+  //         </Tooltip>
+  //       </Space>
+  //     ),
+  //     align: "right",
+  //     fixed: "right",
+  //     width: 150,
+  //   },
+  // ];
+
   const columns: ColumnProps<ProductModel>[] = [
     {
       key: "title",
       dataIndex: "",
       title: "Title",
       width: 300,
-      render: (items: ProductModel) => (
-        <Link to={`/inventory/detail/${items.slug}?id=${items._id}`}>
-          {items.title}
+      render: (item: ProductModel) => (
+        <Link to={`/inventory/detail/${item.slug}?id=${item._id}`}>
+          {item.title}
         </Link>
       ),
     },
     {
       key: "description",
       dataIndex: "description",
-      title: "Description",
+      title: "description",
       width: 400,
     },
     {
       key: "categories",
       dataIndex: "categories",
-      title: "Categories",
-      width: 300,
-
+      title: "categories",
       render: (ids: string[]) => (
         <Space>
           {ids.map((id) => (
@@ -103,6 +255,7 @@ const Inventories = () => {
           ))}
         </Space>
       ),
+      width: 300,
     },
     {
       key: "images",
@@ -114,6 +267,7 @@ const Inventories = () => {
           <Space>
             <Avatar.Group>
               {imgs.map((img) => (
+                // img
                 <Avatar src={img} size={40} />
               ))}
             </Avatar.Group>
@@ -121,44 +275,39 @@ const Inventories = () => {
         ),
       width: 300,
     },
-
     {
       key: "colors",
-      width: 200,
       dataIndex: "subItems",
-      title: "Colors",
-      render: (items: SubProductModel[]) => (
-        <Space>
-          {items.length > 0 &&
-            items.map((item, index) => (
-              <div
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: item.color,
-                  borderRadius: 12,
-                }}
-                key={`colors${item.color}${index}`}
-              />
-            ))}
-        </Space>
-      ),
-    },
+      title: "Color",
+      render: (items: SubProductModel[]) => {
+        const colors: string[] = [];
 
-    {
-      key: "price",
-      dataIndex: "subItems",
+        items.forEach(
+          (sub) => !colors.includes(sub.color) && colors.push(sub.color)
+        );
+
+        return (
+          <Space>
+            {colors.length > 0 &&
+              colors.map((item, index) => (
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: item,
+                    borderRadius: 12,
+                  }}
+                  key={`color${item}${index}`}
+                />
+              ))}
+          </Space>
+        );
+      },
       width: 300,
-      title: "Price",
-      render: (items: SubProductModel[]) => (
-        <Typography.Text>{getMixMaxValues(items)}</Typography.Text>
-      ),
     },
     {
       key: "sizes",
       dataIndex: "subItems",
-      width: 150,
-
       title: "Sizes",
       render: (items: SubProductModel[]) => (
         <Space wrap>
@@ -168,21 +317,32 @@ const Inventories = () => {
             ))}
         </Space>
       ),
+      width: 150,
+    },
+    {
+      key: "price",
+      dataIndex: "subItems",
+      title: "Price",
+      render: (items: SubProductModel[]) => (
+        <Typography.Text>{getMixMaxValues(items)}</Typography.Text>
+      ),
+      width: 200,
     },
     {
       key: "stock",
-      width: 100,
       dataIndex: "subItems",
       title: "Stock",
       render: (items: SubProductModel[]) =>
         items.reduce((a, b) => a + b.qty, 0),
       align: "right",
+      width: 100,
     },
-
     {
-      key: "action",
-      title: "Action",
+      key: "actions",
+      title: "Actions",
       dataIndex: "",
+      fixed: "right",
+      width: 150,
       render: (item: ProductModel) => (
         <Space>
           <Tooltip title="Add sub product" key={"addSubProduct"}>
@@ -195,35 +355,30 @@ const Inventories = () => {
               }}
             />
           </Tooltip>
-          <Tooltip title="Edit sub product" key={"btnEdit"}>
+          <Tooltip title="Edit product" key={"btnEdit"}>
             <Button
               icon={<Edit2 color={colors.primary500} size={20} />}
               type="text"
-              onClick={() => {
-                setProductSelected(item);
-                console.log(productSelected);
-              }}
+              onClick={() => navigate(`/inventory/add-product?id=${item._id}`)}
             />
           </Tooltip>
-          <Tooltip title="Remove sub product" key={"btnRemove"}>
+          <Tooltip title="Delete product" key={"btnDelete"}>
             <Button
               icon={<Trash className="text-danger" size={20} />}
               type="text"
-              onClick={() => {
+              onClick={() =>
                 confirm({
                   title: "Confirm?",
-                  content: "Are you sure delete?",
-                  onCancel: () => console.log("Cancel"),
+                  content: "Are you sure you want to delete this item?",
+                  onCancel: () => console.log("cancel"),
                   onOk: () => handleRemoveProduct(item._id),
-                });
-              }}
+                })
+              }
             />
           </Tooltip>
         </Space>
       ),
       align: "right",
-      fixed: "right",
-      width: 150,
     },
   ];
 
