@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TreeModel } from "../models/FormModel";
-import { CategoryModel } from "../models/ProductModel";
+import { CategoryModel } from "../models/Product";
 import { Button, Form, Input, message, Space, TreeSelect } from "antd";
 import { replaceName } from "../utils/replaceName";
 import handleAPI from "../apis/handleAPI";

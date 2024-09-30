@@ -18,7 +18,7 @@ import handleAPI from "../../apis/handleAPI";
 import CategoryComponent from "../../components/CategoryComponent";
 import { colors } from "../../constants/color";
 import { AddSubProductModal } from "../../modals";
-import { ProductModel, SubProductModel } from "../../models/ProductModel";
+import { ProductModel, SubProductModel } from "../../models/Product";
 
 const { confirm } = Modal;
 
@@ -39,6 +39,7 @@ const Inventories = () => {
     try {
       const res = await handleAPI(`/products`);
       setProducts(res.data);
+      console.log(res.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -64,15 +65,6 @@ const Inventories = () => {
     try {
       await handleAPI(api, undefined, "delete");
 
-      // cach 1: gọi lại api để load lại dữ liệu
-      // await getProducts()
-      // Cách 2: xoá item ra khỏi mảng, set lại state
-      // const items = [...products];
-      // const index = items.findIndex((element) => element._id === id);
-      // if (index !== -1) {
-      //   items.splice(index, 1);
-      // }
-      // setProducts(items);
       setProducts((products) =>
         products.filter((element) => element._id !== id)
       );
@@ -117,8 +109,7 @@ const Inventories = () => {
     {
       key: "images",
       dataIndex: "images",
-      title: "Image",
-      width: 300,
+      title: "Images",
       render: (imgs: string[]) =>
         imgs &&
         imgs.length > 0 && (
@@ -130,7 +121,9 @@ const Inventories = () => {
             </Avatar.Group>
           </Space>
         ),
+      width: 300,
     },
+
     {
       key: "colors",
       width: 200,
@@ -160,6 +153,7 @@ const Inventories = () => {
         );
       },
     },
+
     {
       key: "price",
       dataIndex: "subItems",

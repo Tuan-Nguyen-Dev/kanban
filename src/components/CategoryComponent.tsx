@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CategoryModel } from "../models/ProductModel";
+import { CategoryModel } from "../models/Product";
 import handleAPI from "../apis/handleAPI";
 import { Tag } from "antd";
 import { Link } from "react-router-dom";

@@ -1,8 +1,8 @@
 import { storage } from "../firebase/firebaseConfig";
 import { replaceName } from "./replaceName";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-
 import Resizer from "react-image-file-resizer";
+
 export const uploadFile = async (file: any) => {
   const newFile: any = await handleResize(file);
   const filename = replaceName(newFile.name);

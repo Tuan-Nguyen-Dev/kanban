@@ -1,3 +1,5 @@
+/** @format */
+
 import { Editor } from "@tinymce/tinymce-react";
 import {
   Button,
@@ -12,36 +14,37 @@ import {
   TreeSelect,
   Typography,
   Image,
-  UploadProps,
   Upload,
+  UploadProps,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import handleAPI from "../../apis/handleAPI";
-import { ModalCategory } from "../../modals";
 import { SelectModel, TreeModel } from "../../models/FormModel";
-import { getTreeValues } from "../../utils/getTreeValues";
 import { replaceName } from "../../utils/replaceName";
 import { uploadFile } from "../../utils/uploadFile";
+import { Add } from "iconsax-react";
+import { ModalCategory } from "../../modals";
+import { getTreeValues } from "../../utils/getTreeValues";
 import { useSearchParams } from "react-router-dom";
-import { url } from "inspector";
+import ProductDetail from "./ProductDetail";
 
-const { Text, Paragraph, Title } = Typography;
+const { Text, Title, Paragraph } = Typography;
 
 const AddProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [content, setContent] = useState("");
-  const [supplierOption, setSetsupplierOption] = useState<SelectModel[]>([]);
-  const [fileUrl, setFileUrl] = useState("");
-  const [isVisableAddCategory, setIsVisableAddCategory] = useState(false);
+  const [content, setcontent] = useState("");
+  const [supplierOptions, setSupplierOptions] = useState<SelectModel[]>([]);
+  const [isVisibleAddCategory, setIsVisibleAddCategory] = useState(false);
   const [categories, setCategories] = useState<TreeModel[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [fileUrl, setFileUrl] = useState("");
   const [fileList, setFileList] = useState<any[]>([]);
 
-  const [searchParam] = useSearchParams();
-  const id = searchParam.get("id");
+  const [searchParams] = useSearchParams();
+
+  const id = searchParams.get("id");
 
   const editorRef = useRef<any>(null);
-
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -54,6 +57,18 @@ const AddProduct = () => {
     }
   }, [id]);
 
+  const getData = async () => {
+    setIsLoading(true);
+    try {
+      await getSuppliers();
+      await getCategories();
+    } catch (error: any) {
+      message.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getProductDetail = async (id: string) => {
     const api = `/products/detail?id=${id}`;
     try {
@@ -61,9 +76,8 @@ const AddProduct = () => {
       const item = res.data;
 
       if (item) {
-        console.log(item);
         form.setFieldsValue(item);
-        setContent(item.content);
+        setcontent(item.content);
         if (item.images && item.images.length > 0) {
           const items = [...fileList];
           item.images.forEach((url: string) =>
@@ -74,6 +88,7 @@ const AddProduct = () => {
               url,
             })
           );
+
           setFileList(items);
         }
       }
@@ -84,19 +99,17 @@ const AddProduct = () => {
 
   const handleAddNewProduct = async (values: any) => {
     const content = editorRef.current.getContent();
-
     const data: any = {};
     setIsCreating(true);
-
     for (const i in values) {
-      data[`${i}`] = values[`${i}`] ?? "";
+      data[`${i}`] = values[i] ?? "";
     }
+
     data.content = content;
     data.slug = replaceName(values.title);
 
     if (fileList.length > 0) {
       const urls: string[] = [];
-
       fileList.forEach(async (file) => {
         if (file.originFileObj) {
           const url = await uploadFile(file.originFileObj);
@@ -104,17 +117,15 @@ const AddProduct = () => {
         } else {
           urls.push(file.url);
         }
+        data.images = urls;
       });
-      data.images = urls;
     }
 
     try {
-      await handleAPI(
-        `/products/${id ? `update?id=${id}` : `add-new`}`,
-        data,
-        id ? "put" : "post"
-      );
-
+      const api = `/products/${id ? `update?id=${id}` : `add-new`}`;
+      await handleAPI(api, data, id ? "put" : "post");
+      // console.log(api);
+      console.log(data);
       window.history.back();
     } catch (error) {
       console.log(error);
@@ -123,37 +134,23 @@ const AddProduct = () => {
     }
   };
 
-  const getData = async () => {
-    setIsLoading(true);
-    try {
-      await getSupplier();
-      await getCategories();
-    } catch (error: any) {
-      message.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getSupplier = async () => {
+  const getSuppliers = async () => {
     const api = `/supplier`;
     const res = await handleAPI(api);
 
     const data = res.data.items;
-
-    const option = data.map((item: any) => ({
+    const options = data.map((item: any) => ({
       value: item._id,
       label: item.name,
     }));
 
-    setSetsupplierOption(option);
+    setSupplierOptions(options);
   };
 
   const getCategories = async () => {
-    const api = `/products/get-categories`;
-
-    const res = await handleAPI(api);
+    const res = await handleAPI(`/products/get-categories`);
     const datas = res.data;
+
     const data = datas.length > 0 ? getTreeValues(datas, true) : [];
 
     setCategories(data);
@@ -171,23 +168,19 @@ const AddProduct = () => {
           }
         : { ...item }
     );
+
     setFileList(items);
   };
 
   return isLoading ? (
-    <Spin
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    />
+    <Spin />
   ) : (
     <div>
       <div className="container">
-        <Title level={3}>{id ? "Detail Product" : "Add New Product"}</Title>
+        <Title level={3}> {id ? "Edit Product" : "Add new Product"}</Title>
         <Form
           disabled={isCreating}
+          size="large"
           form={form}
           onFinish={handleAddNewProduct}
           layout="vertical"
@@ -200,28 +193,18 @@ const AddProduct = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Please enter title product",
+                    message: "Please enter product title",
                   },
                 ]}
               >
                 <Input allowClear maxLength={150} showCount />
               </Form.Item>
-
-              <Form.Item
-                name={"description"}
-                label="Description"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Please enter description product",
-                //   },
-                // ]}
-              >
+              <Form.Item name={"description"} label="Description">
                 <Input.TextArea
-                  rows={4}
                   maxLength={1000}
-                  allowClear
                   showCount
+                  rows={4}
+                  allowClear
                 />
               </Form.Item>
               <Editor
@@ -263,7 +246,7 @@ const AddProduct = () => {
               />
             </div>
             <div className="col-4">
-              <Card className="mt-4">
+              <Card size="small" className="mt-4">
                 <Space>
                   <Button
                     loading={isCreating}
@@ -274,29 +257,31 @@ const AddProduct = () => {
                   </Button>
                   <Button
                     loading={isCreating}
-                    size="middle"
                     type="primary"
+                    size="middle"
                     onClick={() => form.submit()}
                   >
                     {id ? "Update" : "Submit"}
                   </Button>
                 </Space>
               </Card>
-              <Card size="small" className="mt-4" title="Categories">
+              <Card size="small" className="mt-3" title="Categories">
                 <Form.Item name={"categories"}>
                   <TreeSelect
-                    allowClear
                     treeData={categories}
                     multiple
                     dropdownRender={(menu) => (
                       <>
                         {menu}
 
-                        <Divider />
-
+                        <Divider className="m-0" />
                         <Button
+                          onClick={() => setIsVisibleAddCategory(true)}
                           type="link"
-                          onClick={() => setIsVisableAddCategory(true)}
+                          icon={<Add size={20} />}
+                          style={{
+                            padding: "0 16px",
+                          }}
                         >
                           Add new
                         </Button>
@@ -305,7 +290,7 @@ const AddProduct = () => {
                   />
                 </Form.Item>
               </Card>
-              <Card size="small" className="mt-4" title="Suppliers">
+              <Card size="small" className="mt-3" title="Suppliers">
                 <Form.Item
                   name={"supplier"}
                   rules={[
@@ -316,17 +301,16 @@ const AddProduct = () => {
                   ]}
                 >
                   <Select
+                    showSearch
                     filterOption={(input, option) =>
                       replaceName(option?.label ? option.label : "").includes(
                         replaceName(input)
                       )
                     }
-                    showSearch
-                    options={supplierOption}
+                    options={supplierOptions}
                   />
                 </Form.Item>
               </Card>
-
               <Card size="small" className="mt-3" title="Images">
                 <Upload
                   multiple
@@ -338,22 +322,22 @@ const AddProduct = () => {
                   Upload
                 </Upload>
               </Card>
-
               <Card className="mt-3">
                 <Input
                   allowClear
                   value={fileUrl}
                   onChange={(val) => setFileUrl(val.target.value)}
+                  className="mb-3"
                 />
                 <Input
-                  accept="image/*"
                   type="file"
+                  accept="image/*"
                   onChange={async (files: any) => {
                     const file = files.target.files[0];
 
                     if (file) {
-                      const downloadUrl = await uploadFile(file);
-                      downloadUrl && setFileUrl(downloadUrl);
+                      const donwloadUrl = await uploadFile(file);
+                      donwloadUrl && setFileUrl(donwloadUrl);
                     }
                   }}
                 />
@@ -364,9 +348,11 @@ const AddProduct = () => {
       </div>
 
       <ModalCategory
-        visible={isVisableAddCategory}
-        onClose={() => setIsVisableAddCategory(false)}
-        onAddNew={async (val) => await getCategories()}
+        visible={isVisibleAddCategory}
+        onClose={() => setIsVisibleAddCategory(false)}
+        onAddNew={async (val) => {
+          await getCategories();
+        }}
         values={categories}
       />
     </div>

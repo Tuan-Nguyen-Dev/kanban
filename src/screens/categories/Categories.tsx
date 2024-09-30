@@ -4,7 +4,7 @@ import { Edit2, Trash } from "iconsax-react";
 import { useEffect, useState } from "react";
 import handleAPI from "../../apis/handleAPI";
 import { colors } from "../../constants/color";
-import { CategoryModel } from "../../models/ProductModel";
+import { CategoryModel } from "../../models/Product";
 import { TreeModel } from "../../models/FormModel";
 import { getTreeValues } from "../../utils/getTreeValues";
 import { AddCategory } from "../../components";

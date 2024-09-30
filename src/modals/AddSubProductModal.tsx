@@ -1,3 +1,5 @@
+/** @format */
+
 import {
   ColorPicker,
   Form,
@@ -12,9 +14,9 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import handleAPI from "../apis/handleAPI";
-import { colors } from "../constants/color";
-import { ProductModel, SubProductModel } from "../models/ProductModel";
 import { uploadFile } from "../utils/uploadFile";
+import { ProductModel, SubProductModel } from "../models/Product";
+import { colors } from "../constants/color";
 
 interface Props {
   visible: boolean;
@@ -24,7 +26,7 @@ interface Props {
 }
 
 const AddSubProductModal = (props: Props) => {
-  const { onClose, visible, product, onAddNew } = props;
+  const { visible, onClose, product, onAddNew } = props;
 
   const [isLoading, setIsLoading] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
@@ -36,23 +38,15 @@ const AddSubProductModal = (props: Props) => {
     form.setFieldValue("color", colors.primary500);
   }, []);
 
-  const handleCancel = () => {
-    form.resetFields();
-    onClose();
-  };
-
   const handleAddSubproduct = async (values: any) => {
     if (product) {
       const data: any = {};
-
       for (const i in values) {
         data[i] = values[i] ?? "";
       }
       data.productId = product._id;
-
       if (fileList.length > 0) {
         const urls: string[] = [];
-
         fileList.forEach(async (file) => {
           const url = await uploadFile(file.originFileObj);
           url && urls.push(url);
@@ -67,14 +61,11 @@ const AddSubProductModal = (props: Props) => {
             : data.color.toHexString();
       }
 
-      console.log(data);
       setIsLoading(true);
-
+      const api = `/products/add-sub-product`;
       try {
-        const api = `/products/add-sub-product`;
-
         const res = await handleAPI(api, data, "post");
-        console.log(res.data);
+
         onAddNew(res.data);
         handleCancel();
       } catch (error) {
@@ -83,8 +74,13 @@ const AddSubProductModal = (props: Props) => {
         setIsLoading(false);
       }
     } else {
-      message.error("Need to add a product details");
+      message.error("Need to product detail");
     }
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    onClose();
   };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
@@ -99,11 +95,13 @@ const AddSubProductModal = (props: Props) => {
           }
         : { ...item }
     );
+
     setFileList(items);
   };
+
   return (
     <Modal
-      title="Add Sub Product"
+      title="Add Sub product"
       open={visible}
       onCancel={handleCancel}
       onClose={handleCancel}
@@ -120,21 +118,29 @@ const AddSubProductModal = (props: Props) => {
         form={form}
         disabled={isLoading}
       >
-        <Form.Item name={"color"} label="Color">
-          <ColorPicker format="hex" />
+        <Form.Item name="color" label="Color">
+          <ColorPicker
+            format="hex"
+            // onChange={(val) => {
+            // 	const color = typeof val === 'string' ? val : val.toHexString();
+
+            // 	console.log(color);
+            // }}
+          />
         </Form.Item>
         <Form.Item
           rules={[
             {
               required: true,
-              message: "type devices size",
+              message: "type device size",
             },
           ]}
-          name={"size"}
+          name="size"
           label="Size"
         >
           <Input allowClear />
         </Form.Item>
+
         <div className="row">
           <div className="col">
             <Form.Item name={"qty"} label="Quantity">
@@ -157,6 +163,7 @@ const AddSubProductModal = (props: Props) => {
       >
         Upload
       </Upload>
+
       {previewImage && (
         <Image
           wrapperStyle={{ display: "none" }}
