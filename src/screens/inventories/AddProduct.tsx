@@ -47,6 +47,7 @@ const AddProduct = () => {
   const editorRef = useRef<any>(null);
   const [form] = Form.useForm();
 
+  // console.log(files);
   useEffect(() => {
     getData();
   }, []);
@@ -207,41 +208,65 @@ const AddProduct = () => {
                   allowClear
                 />
               </Form.Item>
+
               <Editor
                 disabled={isLoading || isCreating}
-                apiKey="ikfkh2oosyq8z4b77hhj1ssxu7js46chtdrcq9j5lqum494c"
                 onInit={(evt, editor) => (editorRef.current = editor)}
+                apiKey="f45yyv668h83hndco8yf9bde22ty6npb6kwk68y5p43k2ryh"
                 initialValue={content !== "" ? content : ""}
                 init={{
                   height: 500,
                   menubar: true,
                   plugins: [
-                    "advlist",
-                    "autolink",
-                    "lists",
-                    "link",
-                    "image",
-                    "charmap",
-                    "preview",
+                    // Core editing features
                     "anchor",
-                    "searchreplace",
-                    "visualblocks",
-                    "code",
-                    "fullscreen",
-                    "insertdatetime",
+                    "autolink",
+                    "charmap",
+                    "codesample",
+                    "emoticons",
+                    "image",
+                    "link",
+                    "lists",
                     "media",
+                    "searchreplace",
                     "table",
-                    "code",
-                    "help",
+                    "visualblocks",
                     "wordcount",
+                    // Your account includes a free trial of TinyMCE premium features
+                    // Try the most popular premium features until Sep 26, 2024:
+                    "checklist",
+                    "mediaembed",
+                    "casechange",
+                    "export",
+                    "formatpainter",
+                    "pageembed",
+                    "a11ychecker",
+                    "tinymcespellchecker",
+                    "permanentpen",
+                    "powerpaste",
+                    "advtable",
+                    "advcode",
+                    "editimage",
+                    "advtemplate",
+                    "ai",
+                    "mentions",
+                    "tinycomments",
+                    "tableofcontents",
+                    "footnotes",
+                    "mergetags",
+                    "autocorrect",
+                    "typography",
+                    "inlinecss",
+                    "markdown",
                   ],
                   toolbar:
-                    "undo redo | blocks | " +
-                    "bold italic forecolor | alignleft aligncenter " +
-                    "alignright alignjustify | bullist numlist outdent indent | " +
-                    "removeformat | help",
-                  content_style:
-                    "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                  tinycomments_mode: "embedded",
+                  tinycomments_author: "Author name",
+                  mergetags_list: [
+                    { value: "First.Name", title: "First Name" },
+                    { value: "Email", title: "Email" },
+                  ],
                 }}
               />
             </div>
@@ -261,7 +286,7 @@ const AddProduct = () => {
                     size="middle"
                     onClick={() => form.submit()}
                   >
-                    {id ? "Update" : "Submit"}
+                    Submit
                   </Button>
                 </Space>
               </Card>
